@@ -1,0 +1,49 @@
+name: build and push to acr
+on:
+  push: 
+    branches:
+      - main
+jobs: 
+  build-push:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: pavithra
+      IMAGE_TAG: v1
+      ACR_NAME: pavithraacr
+      ACR_LOGIN_SERVER: pavithraacr.azurecr.io
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      - name: Azure Login
+        uses: Azure/login@v2.3.0
+        with:
+          # ClientId of the Azure Service principal created.
+          client-id: 14b8e44d-9931-435a-8834-5122f80e9a13
+          # TenantId of the Azure Service principal created.
+          tenant-id: c1458e86-22a3-4b4c-b4af-89ecd5384a8f
+          # Azure subscriptionId
+          subscription-id: 5e4fafbb-ef69-4e17-8835-68030d81f758
+      - name: Login to ACR  
+        run: |
+          az acr login --name $ACR_NAME
+      - name: build docker image 
+        run: |
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+      - name: Tag docker image for acr  
+        run: |
+          docker tag $IMAGE_NAME:$IMAGE_TAG $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG
+      - name: Docker image to acr
+        run: |
+          docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG 
+          
+                  
+        
+
+  
+        
+       
+    
+     
+  
+      
